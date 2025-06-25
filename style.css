@@ -110,3 +110,8 @@ h1, h2, h3, h4 {
     border: 1px solid #ccc;
     margin-top: 20px;
 }
+
+#shearCanvas, #momentCanvas {
+    border: 1px solid #ccc;
+    margin-top: 20px;
+}
