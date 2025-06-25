@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concepts de Génie Civil Interactifs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Simulation Interactive pour le Génie Civil</h1>
+        <p>Cet outil vous aide à comprendre visuellement les charges, l'équilibre et la résistance des matériaux.</p>
+
+        <div class="tab-nav">
+            <button class="tab-link active" onclick="openTab(event, 'Charges')">S4.1 - Charges</button>
+            <button class="tab-link" onclick="openTab(event, 'Equilibre')">S4.2 - Équilibre</button>
+            <button class="tab-link" onclick="openTab(event, 'Materiaux')">S4.3 - Mécanique & Choix</button>
+        </div>
+
+        <div id="Charges" class="tab-content" style="display:block;">
+            <h2>S4.1 – Identification et Évaluation des Charges</h2>
+            <p>Modifiez les charges pour voir leur impact. La combinaison de calcul est : <strong>1.35 G + 1.5 Q</strong>.</p>
+            
+            <div class="controls">
+                <label for="chargeG">Charge Permanente (G) : <span id="valeurG">5</span> kN/m</label>
+                <input type="range" id="chargeG" min="1" max="20" value="5" class="slider">
+                
+                <label for="chargeQ">Charge Variable (Q) : <span id="valeurQ">8</span> kN/m</label>
+                <input type="range" id="chargeQ" min="1" max="30" value="8" class="slider">
+            </div>
+            
+            <div class="resultat">
+                <h3>Charge totale appliquée (ELU) :</h3>
+                <p id="calculCharge">1.35 * 5 + 1.5 * 8 = 18.75 kN/m</p>
+            </div>
+            
+            <div class="visualisation">
+                <h4>Visualisation de la Poutre</h4>
+                <div id="poutreVisu" class="poutre-charge">
+                    <span>Charge Totale</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="Equilibre" class="tab-content">
+            <h2>S4.2 – Analyse de l’Équilibre d’un Système</h2>
+            <p>Une structure est en équilibre si la somme des forces et des moments est nulle. Pour notre poutre sur 2 appuis, les appuis génèrent des réactions pour contrer la charge appliquée.</p>
+            <p><strong>Rappel :</strong> Pour être isostatique (calculable simplement), le nombre d'inconnues (réactions) doit être égal au nombre d'équations (3 en 2D).</p>
+            
+            <canvas id="poutreCanvas" width="500" height="200"></canvas>
+            
+            <div class="resultat">
+                <h3>Réactions aux appuis (calculées à partir de l'onglet S4.1) :</h3>
+                <p>Réaction Appui A (gauche) : <strong id="reactionA">...</strong> kN</p>
+                <p>Réaction Appui B (droite) : <strong id="reactionB">...</strong> kN</p>
+            </div>
+        </div>
+
+        <div id="Materiaux" class="tab-content">
+            <h2>S4.3 – Étude Mécanique et Choix Technique</h2>
+            <p>Le choix du matériau et des dimensions de la poutre est crucial pour qu'elle résiste aux efforts.</p>
+            
+            <div class="controls">
+                <label for="poutreLargeur">Largeur de la poutre (b) : <span id="valeurLargeur">15</span> cm</label>
+                <input type="range" id="poutreLargeur" min="5" max="50" value="15" class="slider">
+                
+                <label for="poutreHauteur">Hauteur de la poutre (h) : <span id="valeurHauteur">30</span> cm</label>
+                <input type="range" id="poutreHauteur" min="10" max="100" value="30" class="slider">
+            </div>
+
+            <div class="section-visu-container">
+                <div id="sectionVisu"></div>
+            </div>
+            
+            <div class="resultat">
+                <h3>Caractéristiques Géométriques</h3>
+                <p>Moment quadratique (résistance à la flexion) : $I = \frac{b \cdot h^3}{12}$</p>
+                <p>I = <strong id="valeurI">...</strong> cm⁴</p>
+
+                <h3>Vérification de la Résistance (Contrainte de flexion)</h3>
+                <p>La contrainte dans le matériau ($\sigma$) doit être inférieure à sa résistance admissible ($\sigma_{adm}$).</p>
+                <p>$\sigma = \frac{M_{max} \cdot y}{I}$ (avec $M_{max}$ calculé à partir des charges)</p>
+                <p>Contrainte maximale : <strong id="valeurContrainte">...</strong> MPa</p>
+                <p>Résistance admissible (Acier S235) : <strong>235 MPa</strong></p>
+                <div id="verdict" class="verdict-neutre">En attente des calculs...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
