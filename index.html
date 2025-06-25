@@ -48,7 +48,14 @@
             <p>Une structure est en équilibre si la somme des forces et des moments est nulle. Pour notre poutre sur 2 appuis, les appuis génèrent des réactions pour contrer la charge appliquée.</p>
             <p><strong>Rappel :</strong> Pour être isostatique (calculable simplement), le nombre d'inconnues (réactions) doit être égal au nombre d'équations (3 en 2D).</p>
             
+            <div class="controls">
+                <label for="longueurPoutre">Longueur de la poutre (L) : <span id="valeurLongueur">5</span> m</label>
+                <input type="range" id="longueurPoutre" min="1" max="10" value="5" step="0.5" class="slider">
+            </div>
+
             <canvas id="poutreCanvas" width="500" height="200"></canvas>
+            <canvas id="shearCanvas" width="500" height="150"></canvas>
+            <canvas id="momentCanvas" width="500" height="150"></canvas>
             
             <div class="resultat">
                 <h3>Réactions aux appuis (calculées à partir de l'onglet S4.1) :</h3>

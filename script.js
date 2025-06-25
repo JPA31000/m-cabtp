@@ -14,8 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const poutreCanvas = document.getElementById('poutreCanvas');
     const ctx = poutreCanvas.getContext('2d');
+    const shearCanvas = document.getElementById('shearCanvas');
+    const shearCtx = shearCanvas.getContext('2d');
+    const momentCanvas = document.getElementById('momentCanvas');
+    const momentCtx = momentCanvas.getContext('2d');
     const reactionA = document.getElementById('reactionA');
     const reactionB = document.getElementById('reactionB');
+
+    const longueurPoutreInput = document.getElementById('longueurPoutre');
+    const valeurLongueur = document.getElementById('valeurLongueur');
 
     const poutreLargeurInput = document.getElementById('poutreLargeur');
     const valeurLargeur = document.getElementById('valeurLargeur');
@@ -27,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const verdict = document.getElementById('verdict');
 
     // Constantes pour les calculs (on peut les ajuster)
-    const LONGUEUR_POUTRE = 5; // en mètres
     const RESISTANCE_ACIER_ADM = 235; // en MPa (MegaPascals)
 
     // --- FONCTION PRINCIPALE DE MISE À JOUR ---
@@ -49,8 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // --- Onglet 2: Calcul de l'équilibre ---
+        const L = parseFloat(longueurPoutreInput.value);
+        valeurLongueur.textContent = L;
+
         const chargeTotaleEnNewtons = chargeTotale * 1000; // Conversion kN/m -> N/m
-        const forceTotale = chargeTotaleEnNewtons * LONGUEUR_POUTRE;
+        const forceTotale = chargeTotaleEnNewtons * L;
         
         // Pour une poutre sur deux appuis simples avec charge uniforme, les réactions sont égales
         const ra = forceTotale / 2;
@@ -60,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reactionB.textContent = (rb / 1000).toFixed(2);
         
         dessinerPoutreEquilibre(chargeTotale, (ra / 1000), (rb / 1000));
+        dessinerEfforts(chargeTotale, L);
 
 
         // --- Onglet 3: Calcul de la mécanique et résistance ---
@@ -79,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Calcul du Moment de flexion maximal (pour une poutre sur 2 appuis et charge uniforme)
         // Formule M_max = (w * L^2) / 8
-        const M_max_kNm = (chargeTotale * Math.pow(LONGUEUR_POUTRE, 2)) / 8;
+        const M_max_kNm = (chargeTotale * Math.pow(L, 2)) / 8;
         
         // Calcul de la contrainte maximale (Sigma)
         // Formule: sigma = (M * y) / I
@@ -164,12 +174,52 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText(`RB = ${rb.toFixed(2)} kN`, xEnd - 20, yPoutre + 70);
     }
 
+    // --- FONCTION POUR DESSINER LES DIAGRAMMES D'EFFORTS ---
+    function dessinerEfforts(charge, L) {
+        const RA = charge * L / 2;
+        const xStart = 50;
+        const xEnd = 450;
+
+        // Effort tranchant
+        shearCtx.clearRect(0, 0, shearCanvas.width, shearCanvas.height);
+        const baseS = 75;
+        const scaleS = 60 / RA;
+        shearCtx.beginPath();
+        shearCtx.moveTo(xStart, baseS);
+        shearCtx.lineTo(xStart, baseS - RA * scaleS);
+        shearCtx.lineTo(xEnd, baseS + RA * scaleS);
+        shearCtx.lineTo(xEnd, baseS);
+        shearCtx.strokeStyle = '#3498db';
+        shearCtx.stroke();
+
+        // Moment fléchissant
+        momentCtx.clearRect(0, 0, momentCanvas.width, momentCanvas.height);
+        const baseM = 90;
+        const Mmax = charge * Math.pow(L, 2) / 8;
+        const scaleM = 70 / Mmax;
+        momentCtx.beginPath();
+        for (let i = 0; i <= 50; i++) {
+            const x = (L * i) / 50;
+            const px = xStart + (x / L) * (xEnd - xStart);
+            const Mx = RA * x - charge * Math.pow(x, 2) / 2;
+            const py = baseM - Mx * scaleM;
+            if (i === 0) {
+                momentCtx.moveTo(px, baseM);
+            }
+            momentCtx.lineTo(px, py);
+        }
+        momentCtx.lineTo(xEnd, baseM);
+        momentCtx.strokeStyle = '#f39c12';
+        momentCtx.stroke();
+    }
+
 
     // --- GESTIONNAIRES D'ÉVÉNEMENTS ---
     // On ajoute un "écouteur" sur chaque curseur.
     // Dès qu'un curseur est bougé ("input"), on appelle notre fonction de mise à jour.
     chargeGInput.addEventListener('input', mettreAJourToutesLesValeurs);
     chargeQInput.addEventListener('input', mettreAJourToutesLesValeurs);
+    longueurPoutreInput.addEventListener('input', mettreAJourToutesLesValeurs);
     poutreLargeurInput.addEventListener('input', mettreAJourToutesLesValeurs);
     poutreHauteurInput.addEventListener('input', mettreAJourToutesLesValeurs);
 
